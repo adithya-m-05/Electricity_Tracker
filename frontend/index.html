@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Electricity Tracker — Smart Energy Dashboard</title>
+    <meta name="description" content="Real-time electricity monitoring dashboard with AI-powered recommendations, appliance control, and smart budgeting for Indian households.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app" id="app">
+    <!-- ─── Header ──────────────────────────────────────────────── -->
+    <header class="header">
+        <div class="header-left">
+            <div class="header-logo">⚡</div>
+            <div>
+                <h1 class="header-title">Electricity Tracker</h1>
+                <p class="header-subtitle">Smart Energy Dashboard</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="status-badge" id="connection-status">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">Connecting...</span>
+            </div>
+            <span class="live-clock" id="live-clock">--:--:--</span>
+        </div>
+    </header>
+
+    <!-- ─── Stats Bar ───────────────────────────────────────────── -->
+    <section class="stats-grid" id="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-label">Current Power</div>
+            <div class="stat-value blue"><span id="stat-power">0</span><span class="stat-unit">W</span></div>
+            <div class="stat-sub" id="stat-power-sub">Peak: 0 W</div>
+        </div>
+        <div class="stat-card emerald">
+            <div class="stat-label">Today's Usage</div>
+            <div class="stat-value emerald"><span id="stat-today">0.00</span><span class="stat-unit">kWh</span></div>
+            <div class="stat-sub" id="stat-today-sub">Updated just now</div>
+        </div>
+        <div class="stat-card amber">
+            <div class="stat-label">Monthly Usage</div>
+            <div class="stat-value amber"><span id="stat-month">0.00</span><span class="stat-unit">kWh</span></div>
+            <div class="stat-sub" id="stat-month-sub">of 500 kWh limit</div>
+        </div>
+        <div class="stat-card purple">
+            <div class="stat-label">Estimated Cost</div>
+            <div class="stat-value purple">₹<span id="stat-cost">0</span></div>
+            <div class="stat-sub" id="stat-cost-sub">Projected: ₹0</div>
+        </div>
+    </section>
+
+    <!-- ─── Main Content ────────────────────────────────────────── -->
+    <section class="content-grid">
+        <!-- Chart -->
+        <div class="card" id="chart-card">
+            <div class="card-header">
+                <h2 class="card-title">Power Consumption — Last 24 Hours</h2>
+                <span class="card-badge" id="chart-badge">Live</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="power-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Gauge -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Budget Usage</h2>
+                <span class="card-badge" id="gauge-badge">0%</span>
+            </div>
+            <div class="gauge-wrapper">
+                <div style="position: relative; width: 200px; height: 200px;">
+                    <svg class="gauge-svg" viewBox="0 0 120 120">
+                        <circle class="gauge-track" cx="60" cy="60" r="52"></circle>
+                        <circle class="gauge-fill" id="gauge-fill" cx="60" cy="60" r="52"
+                                stroke-dasharray="326.73"
+                                stroke-dashoffset="326.73"></circle>
+                    </svg>
+                    <div class="gauge-center-text">
+                        <div class="gauge-percentage" id="gauge-pct">0%</div>
+                        <div class="gauge-label">Used</div>
+                    </div>
+                </div>
+                <div class="gauge-details">
+                    <div class="gauge-detail-row">
+                        <span class="gauge-detail-label">Remaining</span>
+                        <span class="gauge-detail-value" id="gauge-remaining">500 kWh</span>
+                    </div>
+                    <div class="gauge-detail-row">
+                        <span class="gauge-detail-label">Projected Monthly</span>
+                        <span class="gauge-detail-value" id="gauge-projected">0 kWh</span>
+                    </div>
+                    <div class="gauge-detail-row">
+                        <span class="gauge-detail-label">Active Appliances</span>
+                        <span class="gauge-detail-value" id="gauge-active">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── AI Recommendations ──────────────────────────────────── -->
+    <section class="recommendations card" id="recommendations-section">
+        <div class="card-header">
+            <h2 class="card-title">🤖 AI Recommendations</h2>
+            <span class="card-badge">Smart</span>
+        </div>
+        <div class="rec-list" id="rec-list">
+            <div class="rec-item info">
+                <span class="rec-icon">📡</span>
+                <span class="rec-text">Waiting for data from the IoT simulator...</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── Appliance Control ───────────────────────────────────── -->
+    <section class="appliance-section card">
+        <div class="card-header">
+            <h2 class="card-title">🏠 Appliance Control</h2>
+            <span class="card-badge" id="appliance-count">0 active</span>
+        </div>
+        <div class="appliance-grid" id="appliance-grid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
+    <!-- ─── Settings ────────────────────────────────────────────── -->
+    <section class="settings-section card">
+        <div class="card-header">
+            <h2 class="card-title">⚙️ Settings</h2>
+        </div>
+        <div class="settings-row">
+            <div class="settings-group">
+                <label class="settings-label" for="input-limit">Monthly Limit (kWh)</label>
+                <input type="number" class="settings-input" id="input-limit" value="500" min="1" step="10">
+            </div>
+            <div class="settings-group">
+                <label class="settings-label" for="input-rate">Electricity Rate (₹/kWh)</label>
+                <input type="number" class="settings-input" id="input-rate" value="8" min="0.1" step="0.5">
+            </div>
+            <button class="btn btn-primary" id="btn-save-settings" onclick="saveSettings()">💾 Save Settings</button>
+            <button class="btn btn-danger" id="btn-reset" onclick="resetData()">🔄 Reset Data</button>
+        </div>
+    </section>
+
+    <!-- ─── Footer ──────────────────────────────────────────────── -->
+    <footer class="footer">
+        <p>Electricity Tracker v2.0 — Smart Energy Management Dashboard</p>
+        <p>Future: iOS IoT Integration via Raspberry Pi Sensors</p>
+    </footer>
+</div>
+
+<!-- ─── Toast Container ──────────────────────────────────────────── -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
